@@ -1,0 +1,71 @@
+---
+import Base from './Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { t, home, blogIndex, type Lang } from '../i18n/ui';
+
+interface Props { entry: CollectionEntry<'blog'>; hasAlternate: boolean }
+const { entry, hasAlternate } = Astro.props;
+const lang = entry.data.lang as Lang;
+const T = t(lang);
+const { Content } = await entry.render();
+const site = Astro.site!.toString().replace(/\/$/, '');
+const url = site + Astro.url.pathname;
+const fmt = (d: Date) => d.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const related = (await getCollection('blog', (e) => e.data.lang === lang && !e.data.draft && e.id !== entry.id))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 2);
+const postPath = (e: CollectionEntry<'blog'>) => `${blogIndex(lang)}${e.slug.split('/')[1]}/`;
+
+const jsonld = [
+  {
+    '@context': 'https://schema.org', '@type': 'Article',
+    headline: entry.data.title, description: entry.data.description, inLanguage: lang === 'zh' ? 'zh-Hans' : 'en',
+    datePublished: entry.data.pubDate.toISOString(), dateModified: (entry.data.updatedDate ?? entry.data.pubDate).toISOString(),
+    mainEntityOfPage: url, image: `${site}/og/og-${lang}.png`,
+    author: { '@type': 'Organization', name: 'Playin30', url: site + '/' },
+    publisher: { '@type': 'Organization', name: 'Playin30', logo: { '@type': 'ImageObject', url: site + '/favicon.svg' } },
+  },
+  {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Playin30', item: site + home(lang) },
+      { '@type': 'ListItem', position: 2, name: T.blog.title, item: site + blogIndex(lang) },
+      { '@type': 'ListItem', position: 3, name: entry.data.title, item: url },
+    ],
+  },
+];
+---
+<Base lang={lang} title={`${entry.data.title} | Playin30`} description={entry.data.description} ogType="article" jsonld={jsonld} ads hasAlternate={hasAlternate}>
+  <Header lang={lang} />
+  <main>
+    <article class="article">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href={home(lang)}>Playin30</a> / <a href={blogIndex(lang)}>{T.blog.title}</a></nav>
+      <header>
+        <h1 class="hand">{entry.data.title}</h1>
+        <p class="meta">
+          <time datetime={entry.data.pubDate.toISOString()}>{fmt(entry.data.pubDate)}</time>
+          {entry.data.updatedDate && <> · {T.blog.updated} <time datetime={entry.data.updatedDate.toISOString()}>{fmt(entry.data.updatedDate)}</time></>}
+        </p>
+        <p class="lead">{entry.data.description}</p>
+      </header>
+      <div class="prose"><Content /></div>
+      <AdSlot lang={lang} slot={import.meta.env.PUBLIC_ADSENSE_SLOT_ARTICLE} />
+      <p class="post-cta"><a class="btn btn-primary btn-big" href={`${home(lang)}#try`}>{T.blog.cta}</a></p>
+      {related.length > 0 && (
+        <section class="section">
+          <h2 class="hand">{T.blog.back}</h2>
+          <ul class="blog-list">
+            {related.map((e) => (
+              <li class="card"><a href={postPath(e)}><h2>{e.data.title}</h2><p>{e.data.description}</p></a></li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <AdSlot lang={lang} slot={import.meta.env.PUBLIC_ADSENSE_SLOT_END} />
+    </article>
+  </main>
+  <Footer lang={lang} />
+</Base>

@@ -1,0 +1,17 @@
+---
+import { t, blogIndex, type Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const privacy = lang === 'zh' ? '/zh/privacy/' : '/privacy/';
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="hand footer-slogan">{T.slogan}</p>
+    <div class="footer-row">
+      <p><strong>Playin30.com</strong>　{T.footer.privacy}</p>
+      <p>{T.footer.b2b} <a href="mailto:hello@playin30.com">{T.footer.contact}</a></p>
+    </div>
+    <p class="footer-links"><a href={blogIndex(lang)}>{T.footer.blog}</a> · <a href={privacy}>{T.footer.privacyLink}</a> · © {new Date().getFullYear()} Playin30</p>
+  </div>
+</footer>

@@ -1,0 +1,26 @@
+---
+import { t, altPath, home, blogIndex, type Lang } from '../i18n/ui';
+interface Props { lang: Lang; onHome?: boolean }
+const { lang, onHome = false } = Astro.props;
+const T = t(lang);
+const base = onHome ? '' : home(lang);
+const other: Lang = lang === 'en' ? 'zh' : 'en';
+---
+<header class="site-header wrap">
+  <a class="brand" href={home(lang)}>
+    <span class="hand brand-name">Playin30</span>
+    <span class="brand-slogan">{T.slogan}</span>
+  </a>
+  <nav class="nav" aria-label="Main">
+    <a href={`${base}#search`}>{T.nav.search}</a>
+    <a href={`${base}#home`}>{T.nav.home}</a>
+    <a href={`${base}#moments`}>{T.nav.moments}</a>
+    <a href={`${base}#try`}>{T.nav.tryIt}</a>
+    <a href={`${base}#booklet`}>{T.nav.booklet}</a>
+    <a href={blogIndex(lang)}>{T.nav.blog}</a>
+  </nav>
+  <div class="header-actions">
+    <a class="btn-lang" href={altPath(Astro.url.pathname, other)} hreflang={other === 'zh' ? 'zh-Hans' : 'en'} aria-label={T.nav.switchAria}>{T.nav.switchLabel}</a>
+    <a class="btn btn-yellow btn-small" href={`${base}#try`}>{T.nav.cta}</a>
+  </div>
+</header>

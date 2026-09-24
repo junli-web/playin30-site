@@ -1,0 +1,260 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import Svg from './Svg.astro';
+import GameMachine from './GameMachine.tsx';
+import ShareButton from './ShareButton.tsx';
+import SignupForm from './SignupForm.tsx';
+import LangHint from './LangHint.tsx';
+import { t, altPath, type Lang } from '../i18n/ui';
+import { BOOKLETS, SAMPLE_BOOKLET, STAMP, TREASURE_BOX, TALK_BOOKLET } from '../data/games';
+import GameSearch from './GameSearch.tsx';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const site = Astro.site!.toString().replace(/\/$/, '');
+const other: Lang = lang === 'en' ? 'zh' : 'en';
+const sample = SAMPLE_BOOKLET[lang];
+const homeBooklet = BOOKLETS.home[lang] ?? BOOKLETS.home.en!;
+const tints = ['var(--tint-yellow)', 'var(--tint-mint)', 'var(--tint-sky)'];
+const jsonld = [
+  { '@context': 'https://schema.org', '@type': 'Organization', name: 'Playin30', url: site + '/', logo: site + '/favicon.svg', slogan: T.slogan, email: 'hello@playin30.com' },
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Playin30', url: site + (lang === 'zh' ? '/zh/' : '/'), inLanguage: lang === 'zh' ? 'zh-Hans' : 'en', description: T.meta.description },
+];
+---
+<Base lang={lang} title={T.meta.title} description={T.meta.description} jsonld={jsonld}>
+  <LangHint client:idle target={other} href={altPath(Astro.url.pathname, other)} text={T.langHint.text} go={T.langHint.go} dismiss={T.langHint.dismiss} />
+  <Header lang={lang} onHome />
+  <main>
+    <!-- Hero -->
+    <section class="hero wrap">
+      <div class="hero-text">
+        <span class="pill pill-yellow tilt-l">{T.hero.eyebrow}</span>
+        <h1 class="hand">{T.hero.h1.map((line) => <span class="line">{line}</span>)}</h1>
+        <p class="lead">{T.hero.body}</p>
+        <div class="btn-row">
+          <a class="btn btn-primary btn-big" href="#try">{T.hero.primary}</a>
+          <a class="btn btn-secondary btn-big" href="#moments">{T.hero.secondary}</a>
+        </div>
+      </div>
+      <figure class="hero-art">
+        <Svg name="teach" lang={lang} class="frame tilt-r" />
+        <figcaption class="hand">{T.hero.caption}</figcaption>
+      </figure>
+    </section>
+
+    <!-- Ages -->
+    <section class="wrap section" id="ages">
+      <h2 class="hand">{T.ages.h2}</h2>
+      <div class="grid-3">
+        {T.ages.cards.map((c, i) => (
+          <div class="card sticker" style={`background:${tints[i]}`}>
+            <span class="hand age-num">{c.age}</span>
+            <h3>{c.title}</h3>
+            <p>{c.body}</p>
+          </div>
+        ))}
+      </div>
+      <div class="grid-2 doors">
+        <div class="card dashed"><h3>{T.ages.younger.title}</h3><p>{T.ages.younger.body}</p></div>
+        <div class="card dashed"><h3>{T.ages.older.title}</h3><p>{T.ages.older.body}</p></div>
+      </div>
+    </section>
+
+    <!-- Home mode: where paper has to beat pixels -->
+    <section class="band band-butter" id="home">
+      <div class="wrap section split">
+        <div class="split-text">
+          <span class="pill pill-yellow">{T.homeMode.badge}</span>
+          <h2 class="hand">{T.homeMode.h2}</h2>
+          <p class="lead">{T.homeMode.body}</p>
+          <div class="basket-row">
+            <Svg name="basket" lang={lang} class="basket-art" />
+            <p class="hand basket-line">{T.homeMode.basket}</p>
+          </div>
+          <a class="btn btn-primary btn-big" href={homeBooklet} target="_blank" rel="noopener">{T.homeMode.download}</a>
+        </div>
+        <div class="split-main home-cards">
+          {T.homeMode.cards.map((c, i) => (
+            <div class={`card ${i % 2 ? 'tilt-r' : 'tilt-l'}`} style={`background:${['#fff', 'var(--tint-sky)', 'var(--tint-mint)'][i]}`}>
+              <h3 class="hand h3-hand">{c.title}</h3>
+              <p>{c.body}</p>
+            </div>
+          ))}
+          <Svg name="art-home" lang={lang} class="frame-inner home-art" />
+          <div class="card stamp-card">
+            <h3 class="hand h3-hand">{T.homeMode.stampTitle}</h3>
+            <p>{T.homeMode.stampBody}</p>
+            <div class="btn-row">
+              <a class="btn btn-secondary" href={STAMP[lang].booklet} target="_blank" rel="noopener">{T.homeMode.stampButton}</a>
+              <a class="muted stamp-refill" href={STAMP[lang].card} target="_blank" rel="noopener">{T.homeMode.stampCard}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Treasure Box: the kit every other booklet assumes -->
+    <section class="wrap section split" id="box">
+      <div class="split-text">
+        <span class="pill pill-yellow">{T.treasure.badge}</span>
+        <h2 class="hand">{T.treasure.h2}</h2>
+        <p class="lead">{T.treasure.body}</p>
+        <ol class="box-rules">{T.treasure.rules.map((r) => <li>{r}</li>)}</ol>
+        <a class="btn btn-primary btn-big" href={TREASURE_BOX[lang]} target="_blank" rel="noopener">{T.treasure.download}</a>
+      </div>
+      <div class="split-main">
+        <Svg name="basket" lang={lang} class="frame treasure-art" />
+      </div>
+    </section>
+
+    <!-- Search the library by material -->
+    <section class="band band-sand" id="search">
+      <div class="wrap section">
+        <span class="pill pill-mint">{T.search.badge}</span>
+        <h2 class="hand">{T.search.h2}</h2>
+        <p class="lead narrow">{T.search.lead}</p>
+        <GameSearch client:visible lang={lang} t={T.search} />
+        <div class="card talk-card">
+          <h3 class="hand h3-hand">{T.search.talkTitle}</h3>
+          <p>{T.search.talkBody}</p>
+          <a class="btn btn-secondary" href={TALK_BOOKLET[lang]} target="_blank" rel="noopener">{T.search.talkButton}</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Moments -->
+    <section class="band band-peach" id="moments">
+      <div class="wrap section">
+        <h2 class="hand">{T.moments.h2}</h2>
+        <p class="lead narrow">{T.moments.lead}</p>
+        <div class="grid-2 moments">
+          {T.moments.cards.map((m, i) => (
+            <figure class={`card moment ${i % 2 ? 'tilt-r' : 'tilt-l'}`}>
+              <Svg name={m.scene} lang={lang} class="frame-inner" />
+              <figcaption class="hand">{m.caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+        <p class="card note hand">{T.moments.noLaugh}</p>
+      </div>
+    </section>
+
+    <!-- Try: the game machine -->
+    <section class="wrap section split" id="try">
+      <div class="split-text">
+        <span class="pill pill-mint">{T.tryIt.badge}</span>
+        <h2 class="hand">{T.tryIt.h2}</h2>
+        <p class="lead">{T.tryIt.lead}</p>
+        <p class="muted">{T.tryIt.small}</p>
+      </div>
+      <div class="split-main">
+        <GameMachine client:visible lang={lang} shareTitle={T.share.shareTitle} shareText={T.share.shareText} signupAnchor="#signup" />
+      </div>
+    </section>
+
+    <!-- Why paper -->
+    <section class="band band-butter">
+      <div class="wrap section">
+        <h2 class="hand">{T.why.h2}</h2>
+        <div class="grid-3">
+          {T.why.cards.map((c, i) => (
+            <div class={`card sticker ${i === 1 ? 'tilt-r' : 'tilt-l'}`} style={`background:${['#fff', 'var(--tint-mint)', 'var(--tint-sky)'][i]}`}>
+              <Svg name={c.icon} lang={lang} class="icon-wide" />
+              <h3 class="hand h3-hand">{c.title}</h3>
+              <p>{c.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- How -->
+    <section class="wrap section" id="how">
+      <h2 class="hand">{T.how.h2}</h2>
+      <ol class="grid-3 steps">
+        {T.how.steps.map((s, i) => (
+          <li>
+            <div class="step-head"><span class="step-num hand">{i + 1}</span><Svg name={s.icon} lang={lang} class="icon-square" /></div>
+            <h3>{s.title}</h3>
+            <p>{s.body}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- Booklet spread -->
+    <section class="band band-sand" id="booklet">
+      <div class="wrap section">
+        <h2 class="hand">{T.booklet.h2}</h2>
+        <p class="lead narrow">{T.booklet.lead}</p>
+        <div class="grid-2 spread">
+          <div class="page tilt-l">
+            <span class="page-label">{T.booklet.kidLabel}</span>
+            <h3>{T.booklet.kidTitle}</h3>
+            <Svg name="bridge" lang={lang} class="page-art" />
+            <ol class="mini-steps">{T.booklet.kidSteps.map((s) => <li>{s}</li>)}</ol>
+          </div>
+          <div class="page tilt-r">
+            <span class="page-label">{T.booklet.parentLabel}</span>
+            <h3>{T.booklet.parentTitle}</h3>
+            <dl class="script">{T.booklet.parentLines.map(([k, v]) => <><dt>{k}</dt><dd>{v}</dd></>)}</dl>
+          </div>
+        </div>
+        <a class="btn btn-primary" href={sample} target="_blank" rel="noopener">{T.booklet.download}</a>
+      </div>
+    </section>
+
+    <!-- Car mode -->
+    <section class="wrap section split" id="car">
+      <div class="split-text">
+        <span class="pill pill-sky">{T.car.badge}</span>
+        <h2 class="hand">{T.car.h2}</h2>
+        <p class="lead">{T.car.body}</p>
+        <p class="muted">{T.car.note}</p>
+      </div>
+      <div class="split-main tear">
+        <div class="tear-top">
+          <span class="page-label">{T.car.topLabel}</span>
+          <h3>{T.car.topTitle}</h3>
+          <p>{T.car.topBody}</p>
+          <p class="muted">{T.car.topLine}</p>
+        </div>
+        <div class="tear-bottom">
+          <span class="page-label">{T.car.bottomLabel}</span>
+          <p>{T.car.answer}</p>
+          <p>{T.car.follow}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Share + signup -->
+    <section class="band band-yellow" id="share">
+      <div class="wrap section split">
+        <div class="split-text">
+          <Svg name="car" lang={lang} class="frame tilt-l" />
+        </div>
+        <div class="split-main">
+          <h2 class="hand">{T.share.h2}</h2>
+          <p class="lead">{T.share.body}</p>
+          <div class="btn-row">
+            <ShareButton client:visible label={T.share.button} copiedLabel={T.share.copied} title={T.share.shareTitle} text={T.share.shareText} />
+            <a class="btn btn-secondary btn-big" href={homeBooklet} target="_blank" rel="noopener">{T.share.print}</a>
+          </div>
+          <p class="muted">{T.pricing}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section" id="signup">
+      <div class="signup-card card">
+        <h2 class="hand">{T.signup.h2}</h2>
+        <p class="lead">{T.signup.lead}</p>
+        <SignupForm client:visible lang={lang} t={T.signup} />
+      </div>
+    </section>
+  </main>
+  <Footer lang={lang} />
+</Base>

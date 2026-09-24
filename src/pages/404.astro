@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base lang="en" title="Page not found | Playin30" description="This page doesn’t exist." noindex hasAlternate={false}>
+  <Header lang="en" />
+  <main class="wrap section">
+    <h1 class="hand" style="font-size:clamp(36px,5vw,58px)">This page fell down like a paper bridge.</h1>
+    <p class="lead">页面不存在。</p>
+    <div class="btn-row"><a class="btn btn-primary" href="/">Back home</a><a class="btn btn-secondary" href="/zh/">回到首页</a></div>
+  </main>
+  <Footer lang="en" />
+</Base>

@@ -1,0 +1,7 @@
+---
+import { art } from './art';
+import type { Lang } from '../i18n/ui';
+interface Props { name: string; lang: Lang; class?: string }
+const { name, lang, class: cls = '' } = Astro.props;
+---
+<div class={`svg ${cls}`} set:html={art(name, lang)} />

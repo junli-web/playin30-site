@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import type { Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const en = lang === 'en';
+---
+<Base lang={lang} title={en ? 'Privacy | Playin30' : '隐私说明 | Playin30'} description={en ? 'How Playin30 handles your data: no tracking cookies on game pages, cookieless analytics, and email only if you ask for it.' : 'Playin30 如何处理你的数据：游戏页面不用追踪 Cookie，统计不用 Cookie，只在你主动登记时才收集邮箱。'}>
+  <Header lang={lang} />
+  <main class="article">
+    <header><h1 class="hand">{en ? 'Privacy' : '隐私说明'}</h1></header>
+    <div class="prose">
+      {en ? (
+        <>
+          <p><em>Draft for review. Please have this checked against your own setup before launch.</em></p>
+          <h2>What we collect</h2>
+          <p><strong>Analytics.</strong> We use Plausible, a cookieless, EU-hosted analytics tool. It counts visits and downloads without cookies and without identifying you.</p>
+          <p><strong>Email signup.</strong> If you ask for the next booklet, we store your email address, your child’s age range and your language, so we can send the right booklet. We never ask for your child’s name. You can unsubscribe with one click in any email.</p>
+          <p><strong>The game planner.</strong> Anything you enter about your child in the planner stays on your own device.</p>
+          <h2>Advertising on the blog</h2>
+          <p>Blog articles may show ads from Google AdSense. In the EU and UK, Google shows a consent message first, and only uses cookies for personalised ads if you agree. The home page and the game planner never show ads.</p>
+          <h2>Your rights</h2>
+          <p>You can ask us to see, correct or delete your data at any time: <a href="mailto:hello@playin30.com">hello@playin30.com</a>.</p>
+        </>
+      ) : (
+        <>
+          <p><em>草稿，上线前请按你的实际配置核对，最好请专业人士审阅。</em></p>
+          <h2>我们收集什么</h2>
+          <p><strong>访问统计。</strong>我们使用 Plausible，一个服务器在欧盟、不使用 Cookie 的统计工具。它只统计访问量和下载量，不识别你是谁。</p>
+          <p><strong>邮箱登记。</strong>如果你主动登记想要下一本手册，我们会保存你的邮箱、孩子的年龄段和你选择的语言，用来给你寄合适的手册。我们从不询问孩子的姓名。每封邮件里都能一键退订。</p>
+          <p><strong>游戏规划。</strong>你在规划工具里填写的孩子信息，只保存在你自己的设备上。</p>
+          <h2>博客上的广告</h2>
+          <p>博客文章可能展示 Google AdSense 广告。在欧盟和英国，Google 会先弹出同意提示，只有你同意后才会使用 Cookie 投放个性化广告。首页和游戏规划页面永远不放广告。</p>
+          <h2>你的权利</h2>
+          <p>你随时可以要求查看、更正或删除你的数据：<a href="mailto:hello@playin30.com">hello@playin30.com</a>。</p>
+        </>
+      )}
+    </div>
+  </main>
+  <Footer lang={lang} />
+</Base>

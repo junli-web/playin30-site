@@ -1,0 +1,82 @@
+---
+// Every page goes through this layout: one place for titles, canonical URLs,
+// hreflang pairs, social cards, structured data, fonts and analytics.
+import '@fontsource/nunito/400.css';
+import '@fontsource/nunito/700.css';
+import '@fontsource/nunito/900.css';
+import '@fontsource/fredoka/500.css';
+import '@fontsource/fredoka/600.css';
+import '@fontsource/caveat/700.css';
+import '@fontsource/noto-sans-sc/400.css';
+import '@fontsource/noto-sans-sc/700.css';
+import '@fontsource/noto-sans-sc/900.css';
+import '@fontsource/zcool-kuaile/400.css';
+import '../styles/global.css';
+import { HREFLANG, altPath, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  jsonld?: Record<string, unknown>[];
+  noindex?: boolean;
+  /** Blog articles only: loads the AdSense script. */
+  ads?: boolean;
+  /** Set false for pages that exist in one language only. */
+  hasAlternate?: boolean;
+}
+const { lang, title, description, ogType = 'website', ogImage, jsonld = [], noindex = false, ads = false, hasAlternate = true } = Astro.props;
+const site = Astro.site!.toString().replace(/\/$/, '');
+const path = Astro.url.pathname;
+const canonical = site + path;
+const other: Lang = lang === 'en' ? 'zh' : 'en';
+const image = site + (ogImage ?? `/og/og-${lang}.png`);
+const adClient = import.meta.env.PUBLIC_ADSENSE_CLIENT;
+const plausible = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
+---
+<!doctype html>
+<html lang={HREFLANG[lang]}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  {noindex && <meta name="robots" content="noindex" />}
+  {hasAlternate && (
+    <>
+      <link rel="alternate" hreflang={HREFLANG[lang]} href={canonical} />
+      <link rel="alternate" hreflang={HREFLANG[other]} href={site + altPath(path, other)} />
+      <link rel="alternate" hreflang="x-default" href={site + altPath(path, 'en')} />
+    </>
+  )}
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <meta name="theme-color" content="#FFF6E8" />
+
+  <meta property="og:type" content={ogType} />
+  <meta property="og:site_name" content="Playin30" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={image} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_GB'} />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  {jsonld.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
+
+  {plausible && (
+    <script defer data-domain={plausible} src="https://plausible.io/js/script.file-downloads.outbound-links.js"></script>
+  )}
+  {ads && adClient && !adClient.includes('0000000000') && (
+    <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`} crossorigin="anonymous"></script>
+  )}
+</head>
+<body>
+  <slot />
+</body>
+</html>

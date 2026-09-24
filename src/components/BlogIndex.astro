@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import { getCollection } from 'astro:content';
+import { t, blogIndex, type Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = t(lang);
+const posts = (await getCollection('blog', (e) => e.data.lang === lang && !e.data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<Base lang={lang} title={`${T.blog.title} | Playin30`} description={T.blog.description}>
+  <Header lang={lang} />
+  <main class="wrap section">
+    <h1 class="hand" style="font-size:clamp(36px,5vw,58px)">{T.blog.h1}</h1>
+    <p class="lead narrow">{T.blog.description}</p>
+    <ul class="blog-list">
+      {posts.map((p) => (
+        <li class="card">
+          <a href={`${blogIndex(lang)}${p.slug.split('/')[1]}/`}>
+            <h2>{p.data.title}</h2>
+            <p>{p.data.description}</p>
+            <span class="pill" style="margin-top:8px">{T.blog.read}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </main>
+  <Footer lang={lang} />
+</Base>
